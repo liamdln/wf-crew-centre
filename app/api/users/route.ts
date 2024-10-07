@@ -2,6 +2,7 @@ import { type NextRequest } from 'next/server'
 import {auth} from "@/auth";
 import {isAdmin, isCrew} from "@/lib/utils";
 import {prisma} from "@/prisma";
+import {getAllUsers, getUser} from "@/lib/database/users";
 
 export async function GET(request: NextRequest) {
 
@@ -15,11 +16,11 @@ export async function GET(request: NextRequest) {
     const id = searchParams.get("id")
 
     if (!id) {
-        const allUsers = await prisma.user.findMany({})
+        const allUsers = await getAllUsers()
         return Response.json(allUsers)
     }
 
-    const user = await prisma.user.findUnique({ where: { id } })
+    const user = await getUser(id)
 
     if (!user) {
         return Response.json({ message: `User with ID ${id} not found.` }, { status: 404 })
@@ -43,7 +44,7 @@ export async function PATCH(request: NextRequest) {
     let data = null;
     try {
         data = await request.json()
-        if (!data || !data.name || !data.role) return Response.json({message: "Malformed body sent."}, { status: 400 })
+        if (!validUserPatchData(data)) return Response.json({message: "Malformed body sent."}, { status: 400 })
     } catch (e) {
         console.error(e)
         return Response.json({message: "Malformed body sent."}, { status: 400 })
@@ -56,7 +57,8 @@ export async function PATCH(request: NextRequest) {
         updatedUser = await prisma.user.update({
             where: {id},
             data: {
-                name: data.name
+                name: data.name,
+                bio: data.bio,
             }
         })
 
@@ -79,6 +81,11 @@ export async function PATCH(request: NextRequest) {
         return Response.json({message: "The specified user could not be found."}, { status: 404 })
     }
 
-    return Response.json({ user: updatedUser, role: updatedRole });
+    return Response.json({ message: "success" });
 
+}
+
+function validUserPatchData(body: Record<string, string>) {
+    return body.name &&
+        body.role
 }

@@ -6,12 +6,12 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
-export function isAdmin(user: { role: string } & User | null | undefined) {
+export function isAdmin(user: User | null | undefined) {
     if (!user) return false;
     return user.role === "admin"
 }
 
-export function isCrew(user: { role: string } & User | null | undefined) {
+export function isCrew(user: User | null | undefined) {
     if (!user) return false;
     return user.role === "crew"
 }

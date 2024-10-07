@@ -2,14 +2,15 @@
 
 import {Input} from "@/components/ui/input";
 import {Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import UserEdit from "@/components/edit-user";
 import {Button} from "@/components/ui/button";
-import {TrashIcon} from "lucide-react";
+import {EditIcon, TrashIcon} from "lucide-react";
 import {User} from "next-auth";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {toast} from "@/hooks/use-toast";
 import LoadingSkeleton from "@/components/loading-skeleton";
-import {capitaliseFirstLetter} from "@/lib/utils";
+import {capitaliseFirstLetter, isAdmin} from "@/lib/utils";
+import EditProfile from "@/components/edit-profile";
+import {patchUser} from "@/lib/database/users";
 
 type Props = {
     currentUser: User;
@@ -46,29 +47,18 @@ function UserTable({currentUser, roleAssignments}: Props) {
             .finally(() => setLoading(false));
     }
 
-    const updateUser = async (userId: string, name: string, role: string) => {
+    const updateUser = async (userId: string, name: string, bio: string, role: string) => {
         const body = {
             name,
-            role
+            role,
+            bio: bio === "" ? null : bio
         }
 
-        return fetch(`/api/users?id=${userId}`, {
-            method: "PATCH",
-            body: JSON.stringify(body)
-        })
-            .then((res) => {
-                if (!res.ok) throw Error(res.statusText);
+        return patchUser(userId, body)
+            .then(() => {
                 refreshUsers()
                 setUserRoles(old => {
                     return {...old, [userId]: role}
-                })
-            })
-            .catch(err => {
-                console.error(err)
-                toast({
-                    title: "An Error Occurred",
-                    description: "Could not update the selected user.",
-                    variant: "destructive"
                 })
             })
     }
@@ -127,11 +117,19 @@ function UserTable({currentUser, roleAssignments}: Props) {
                                         <TableCell>{user.email}</TableCell>
                                         <TableCell className={"w-1/5"}>{capitaliseFirstLetter(role)}</TableCell>
                                         <TableCell className="flex justify-end gap-3 w-full">
-                                            <UserEdit
-                                                user={{role, ...user}}
-                                                updateUser={updateUser}
-                                                editingCurrentUser={user.id === currentUser.id}
-                                            />
+                                            {/*<UserEdit*/}
+                                            {/*    user={{role, ...user}}*/}
+                                            {/*    updateUser={updateUser}*/}
+                                            {/*    editingCurrentUser={user.id === currentUser.id}*/}
+                                            {/*/>*/}
+                                            <EditProfile user={user}
+                                                         hidden={currentUser.id === user.id && !isAdmin(currentUser)}
+                                                         isCurrentUser={currentUser.id === user.id}
+                                                         size={"icon"}
+                                                         updateUser={updateUser}
+                                            >
+                                                <EditIcon className={"w-4 h-4"}/>
+                                            </EditProfile>
                                             <Button
                                                 size={"icon"}
                                                 variant={"destructive"}

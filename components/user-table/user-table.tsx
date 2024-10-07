@@ -11,7 +11,7 @@ import {roles} from "@/lib/database/roles";
 import {Role} from "@prisma/client";
 
 type Props = {
-    currentUser: { role: string } & User;
+    currentUser: User;
     allUsers: User[];
     roleAssignments: Record<string, Role>;
 }

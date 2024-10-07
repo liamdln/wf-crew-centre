@@ -1,5 +1,5 @@
 import {Card, CardHeader, CardTitle} from "@/components/ui/card";
-import {getUser, getUserRole} from "@/lib/database/users";
+import {getUser} from "@/lib/database/users";
 import {auth} from "@/auth";
 import ProfileSidebar from "@/components/profile-sidebar";
 
@@ -22,15 +22,14 @@ async function ProfilePage({searchParams}: Props) {
     if (!searchParams.id) return ProfileNotFound()
 
     const user = await getUser(searchParams.id)
-    const role = await getUserRole(searchParams.id)
     if (!user) return ProfileNotFound();
 
     const session = await auth()
 
     return (
         <div className={"flex gap-6 h-full"}>
-            <ProfileSidebar user={{ role, ...user }}
-                            isCurrentUser={user.id === session?.user.id}
+            <ProfileSidebar isCurrentUser={user.id === session?.user.id}
+                            initialUserData={user}
             />
             <Card className={"grow"}>
                 <CardHeader>

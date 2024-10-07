@@ -31,8 +31,8 @@ function Sidebar({avatarUrl, username, role, id }: Props) {
                 <NavLink href={"/dashboard/admin"} hidden={role !== "admin"}><ShieldIcon className={"w-6 h-6"} />Administration</NavLink>
             </div>
             <div>
-                <div className={"flex items-center justify-between"}>
-                    <Link href={`/dashboard/profile?id=${id}`} className={"flex items-center gap-3 hover:bg-background rounded p-3"}>
+                <div className={"flex items-center justify-between gap-3"}>
+                    <Link href={`/dashboard/profile?id=${id}`} className={"flex items-center gap-3 hover:bg-background rounded p-3 grow"}>
                         <Avatar>
                             <AvatarImage src={avatarUrl ?? undefined}/>
                             <AvatarFallback><RxAvatar className={"h-full w-full"}/></AvatarFallback>

@@ -16,7 +16,7 @@ async function UserManagementPage() {
                 <h1 className={"text-4xl font-bold mb-1"}>User Management</h1>
                 <Separator/>
             </div>
-            <UserTable currentUser={session?.user} roleAssignments={roleAssignments}/>
+            <UserTable currentUser={session?.user} roleAssignments={roleAssignments} />
         </div>
     )
 }

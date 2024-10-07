@@ -9,6 +9,7 @@ declare module "next-auth" {
         } & DefaultSession["user"]
     }
     interface User extends UserType {
-        bio?: string;
+        bio: string | null;
+        role: Role
     }
 }
