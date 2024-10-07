@@ -4,12 +4,15 @@ import {Button} from "@/components/ui/button";
 import {cn} from "@/lib/utils";
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
 import {Check, ChevronsUpDown} from "lucide-react";
+import {UseFormSetValue} from "react-hook-form";
 
 type Props = {
     items: { value: string; label: string }[];
     fieldValue: string | number;
     key: string;
-    setValue: (key: string, value: string) => void;
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setValue: UseFormSetValue<any>;
+    itemName: string;
 }
 
 function FormDropdown({ items, fieldValue, setValue, key }: Props) {
@@ -17,7 +20,7 @@ function FormDropdown({ items, fieldValue, setValue, key }: Props) {
     return (
         <Popover>
             <PopoverTrigger asChild>
-                <FormControl>
+                <FormControl className={"w-full"}>
                     <Button
                         variant="outline"
                         role="combobox"
@@ -35,7 +38,7 @@ function FormDropdown({ items, fieldValue, setValue, key }: Props) {
                     </Button>
                 </FormControl>
             </PopoverTrigger>
-            <PopoverContent className="p-0">
+            <PopoverContent className="p-0 xl:w-[500px]">
                 <Command>
                     <CommandInput placeholder="Search language..." />
                     <CommandList>

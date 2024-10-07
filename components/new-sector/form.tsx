@@ -7,6 +7,7 @@ import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, Form
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {Textarea} from "@/components/ui/textarea";
+import FormDropdown from "@/components/form-dropdown";
 
 const schema = z.object({
     id: z.string().min(4).max(10),
@@ -43,9 +44,9 @@ function NewSectorForm() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
                 <div className={"flex gap-6"}>
-                    <div className={"w-full"}>
+                    <div className={"flex flex-col gap-3 w-full"}>
                         <FormField
                             control={form.control}
                             name="id"
@@ -108,7 +109,7 @@ function NewSectorForm() {
                             )}
                         />
                     </div>
-                    <div className={"w-full"}>
+                    <div className={"flex flex-col gap-3 w-full"}>
                         <FormField
                             control={form.control}
                             name="captain"
@@ -116,7 +117,13 @@ function NewSectorForm() {
                                 <FormItem>
                                     <FormLabel>Captain</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Sector ID" {...field} />
+                                        <div className={"w-full"}>
+                                            <FormDropdown items={[{value: "1", label: "Liam"}]}
+                                                          fieldValue={field.value}
+                                                          key={"captain"}
+                                                          setValue={form.setValue}
+                                            />
+                                        </div>
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -127,7 +134,58 @@ function NewSectorForm() {
                             name="firstOfficer"
                             render={({field}) => (
                                 <FormItem>
-                                    <FormLabel>First Officer</FormLabel>
+                                <FormLabel>First Officer</FormLabel>
+                                    <FormControl>
+                                        <div className={"w-full"}>
+                                            <FormDropdown items={[{value: "1", label: "Liam"}]}
+                                                          fieldValue={field.value}
+                                                          key={"firstOfficer"}
+                                                          setValue={form.setValue}
+                                            />
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="departureTime"
+                            render={({field}) => (
+                                <FormItem>
+                                <FormLabel>Departure Time</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Origin ICAO" {...field} />
+                                    </FormControl>
+                                    <FormDescription>
+                                        Time should be in Zulu Time (GMT).
+                                    </FormDescription>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="arrivalTime"
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>Arrival Time</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Origin ICAO" {...field} />
+                                    </FormControl>
+                                    <FormDescription>
+                                        Time should be in Zulu Time (GMT).
+                                    </FormDescription>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="blockTime"
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>Block Time</FormLabel>
                                     <FormControl>
                                         <Input placeholder="Origin ICAO" {...field} />
                                     </FormControl>
