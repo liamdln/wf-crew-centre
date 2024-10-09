@@ -40,8 +40,7 @@ function FormDropdown({items, fieldValue, setValue, key, hint, loading}: Props) 
                                 :
                                 fieldValue
                                     ? items.find(
-                                        (item) => item.value === fieldValue
-                                    )?.label
+                                        (item) => item.value === fieldValue)?.label
                                     : hint
                         }
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50"/>

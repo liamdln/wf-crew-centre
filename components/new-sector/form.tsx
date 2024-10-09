@@ -8,9 +8,6 @@ import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {Textarea} from "@/components/ui/textarea";
 import FormDropdown from "@/components/form-dropdown";
-import {useEffect, useState} from "react";
-import {User} from "next-auth";
-import {toast} from "@/hooks/use-toast";
 
 const schema = z.object({
     id: z.string().min(4).max(10),
@@ -24,35 +21,14 @@ const schema = z.object({
     blockTime: z.string().min(1),
 })
 
-function NewSectorForm() {
+type Props = {
+    users: { label: string; value: string; }[];
+    airports: { label: string; value: string }[];
+    loadingUsers: boolean;
+    loadingAirports: boolean;
+}
 
-    const [users, setUsers] = useState<{ value: string, label: string }[]>([])
-    const [loadingUsers, setLoadingUsers] = useState(true)
-
-    useEffect(() => {
-        fetchUsers()
-    }, [])
-
-    const fetchUsers = () => {
-        setLoadingUsers(true)
-        fetch("/api/users", {cache: "no-store"})
-            .then(res => {
-                if (!res.ok) throw new Error(`Could not fetch users: ${res.statusText}.`)
-                return res.json()
-            })
-            .then(data => setUsers(data.map((user: User) => {
-                return {value: user.id, label: user.name}
-            })))
-            .catch(err => {
-                console.error(err)
-                toast({
-                    title: "An Error Occurred",
-                    description: "Could not fetch the list of users.",
-                    variant: "destructive"
-                })
-            })
-            .finally(() => setLoadingUsers(false))
-    }
+function NewSectorForm({ users, loadingUsers, airports, loadingAirports }: Props) {
 
     const form = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),
@@ -101,12 +77,12 @@ function NewSectorForm() {
                                 <FormItem>
                                     <FormLabel>Origin ICAO Code</FormLabel>
                                     <FormControl>
-                                        <FormDropdown items={users}
+                                        <FormDropdown items={airports}
                                                       fieldValue={field.value}
                                                       key={"fromIcao"}
                                                       setValue={form.setValue}
                                                       hint={"Select a departure ICAO"}
-                                                      loading={loadingUsers}
+                                                      loading={loadingAirports}
                                         />
                                     </FormControl>
                                     <FormMessage/>
@@ -120,12 +96,12 @@ function NewSectorForm() {
                                 <FormItem>
                                     <FormLabel>Destination ICAO Code</FormLabel>
                                     <FormControl>
-                                        <FormDropdown items={users}
+                                        <FormDropdown items={airports}
                                                       fieldValue={field.value}
                                                       key={"toIcao"}
                                                       setValue={form.setValue}
                                                       hint={"Select an arrival ICAO"}
-                                                      loading={loadingUsers}
+                                                      loading={loadingAirports}
                                         />
                                     </FormControl>
                                     <FormMessage/>

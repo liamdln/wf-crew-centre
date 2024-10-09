@@ -86,8 +86,8 @@ model Sector {
 // data from https://www.partow.net/miscellaneous/airportdatabase/index.html#Downloads
 model Airport {
     id        Int     @id @default(autoincrement())
-    icaoCode  String? @map("icao_code") @db.Char(4)
-    iataCode  String? @map("iata_code") @db.Char(3)
+    icaoCode  String? @map("icao_code") @db.Char(4) @unique
+    iataCode  String? @map("iata_code") @db.Char(3) @unique
     name      String? @db.VarChar(50)
     city      String? @db.VarChar(50)
     country   String? @db.VarChar(50)

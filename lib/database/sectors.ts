@@ -31,16 +31,40 @@ async function getSectorByTrip(departureIcao: string, arrivalIcao: string) {
 async function createSector(sector: Sector) {
 
     // validate
-    if (sector.picId === sector.foId) {
-        throw new Error("Captain and First Officer cannot be the same user.")
-    }
+    if (!validateSectorData(sector)) throw new Error("Invalid sector data was sent.")
 
-
-
-}
-
-async function updateSector() {
+    return prisma.sector.create({
+        data: sector
+    })
 
 }
 
-export { getSectors, getSectorByTrip, getSector, createSector, updateSector }
+async function updateSector(sector: Sector) {
+
+    // validate
+    if (!validateSectorData(sector)) throw new Error("Invalid sector data was sent.")
+
+    return prisma.sector.update({
+        where: { id: sector.id },
+        data: sector
+    })
+
+}
+
+function validateSectorData(sector: Sector) {
+    if (!sector.id ||
+        !sector.fromIcao ||
+        !sector.toIcao ||
+        !sector.route ||
+        !sector.picId ||
+        !sector.foId ||
+        !sector.departureTime ||
+        !sector.arrivalTime ||
+        !sector.blockTime
+    ) return false
+
+    return sector.picId !== sector.foId;
+
+}
+
+export { getSectors, getSectorByTrip, getSector, createSector, updateSector, validateSectorData }
