@@ -8,6 +8,9 @@ import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {Textarea} from "@/components/ui/textarea";
 import FormDropdown from "@/components/form-dropdown";
+import {useEffect, useState} from "react";
+import {User} from "next-auth";
+import {toast} from "@/hooks/use-toast";
 
 const schema = z.object({
     id: z.string().min(4).max(10),
@@ -22,6 +25,34 @@ const schema = z.object({
 })
 
 function NewSectorForm() {
+
+    const [users, setUsers] = useState<{ value: string, label: string }[]>([])
+    const [loadingUsers, setLoadingUsers] = useState(true)
+
+    useEffect(() => {
+        fetchUsers()
+    }, [])
+
+    const fetchUsers = () => {
+        setLoadingUsers(true)
+        fetch("/api/users", {cache: "no-store"})
+            .then(res => {
+                if (!res.ok) throw new Error(`Could not fetch users: ${res.statusText}.`)
+                return res.json()
+            })
+            .then(data => setUsers(data.map((user: User) => {
+                return {value: user.id, label: user.name}
+            })))
+            .catch(err => {
+                console.error(err)
+                toast({
+                    title: "An Error Occurred",
+                    description: "Could not fetch the list of users.",
+                    variant: "destructive"
+                })
+            })
+            .finally(() => setLoadingUsers(false))
+    }
 
     const form = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),
@@ -70,11 +101,14 @@ function NewSectorForm() {
                                 <FormItem>
                                     <FormLabel>Origin ICAO Code</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Origin ICAO" {...field} />
+                                        <FormDropdown items={users}
+                                                      fieldValue={field.value}
+                                                      key={"fromIcao"}
+                                                      setValue={form.setValue}
+                                                      hint={"Select a departure ICAO"}
+                                                      loading={loadingUsers}
+                                        />
                                     </FormControl>
-                                    <FormDescription>
-                                        airport
-                                    </FormDescription>
                                     <FormMessage/>
                                 </FormItem>
                             )}
@@ -86,11 +120,14 @@ function NewSectorForm() {
                                 <FormItem>
                                     <FormLabel>Destination ICAO Code</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Destination ICAO" {...field} />
+                                        <FormDropdown items={users}
+                                                      fieldValue={field.value}
+                                                      key={"toIcao"}
+                                                      setValue={form.setValue}
+                                                      hint={"Select an arrival ICAO"}
+                                                      loading={loadingUsers}
+                                        />
                                     </FormControl>
-                                    <FormDescription>
-                                        airport
-                                    </FormDescription>
                                     <FormMessage/>
                                 </FormItem>
                             )}
@@ -118,10 +155,12 @@ function NewSectorForm() {
                                     <FormLabel>Captain</FormLabel>
                                     <FormControl>
                                         <div className={"w-full"}>
-                                            <FormDropdown items={[{value: "1", label: "Liam"}]}
+                                            <FormDropdown items={users}
                                                           fieldValue={field.value}
                                                           key={"captain"}
                                                           setValue={form.setValue}
+                                                          hint={"Select a captain"}
+                                                          loading={loadingUsers}
                                             />
                                         </div>
                                     </FormControl>
@@ -134,13 +173,15 @@ function NewSectorForm() {
                             name="firstOfficer"
                             render={({field}) => (
                                 <FormItem>
-                                <FormLabel>First Officer</FormLabel>
+                                    <FormLabel>First Officer</FormLabel>
                                     <FormControl>
                                         <div className={"w-full"}>
-                                            <FormDropdown items={[{value: "1", label: "Liam"}]}
+                                            <FormDropdown items={users}
                                                           fieldValue={field.value}
                                                           key={"firstOfficer"}
                                                           setValue={form.setValue}
+                                                          hint={"Select a first officer"}
+                                                          loading={loadingUsers}
                                             />
                                         </div>
                                     </FormControl>
@@ -153,7 +194,7 @@ function NewSectorForm() {
                             name="departureTime"
                             render={({field}) => (
                                 <FormItem>
-                                <FormLabel>Departure Time</FormLabel>
+                                    <FormLabel>Departure Time</FormLabel>
                                     <FormControl>
                                         <Input placeholder="Origin ICAO" {...field} />
                                     </FormControl>

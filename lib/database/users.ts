@@ -1,6 +1,5 @@
 import {prisma} from "@/prisma";
 import {Role} from "@prisma/client";
-import {toast} from "@/hooks/use-toast";
 import {User} from "next-auth";
 
 async function getAllUsers() {
@@ -67,37 +66,4 @@ async function getUserRole(userId: string): Promise<Role> {
     return role.role
 }
 
-async function patchUser(userId: string, body: { name: string, role: string, bio: string | null }) {
-
-    return fetch(`/api/users?id=${userId}`, {
-        method: "PATCH",
-        body: JSON.stringify(body)
-    })
-        .then((res) => {
-            if (!res.ok) throw Error(res.statusText);
-            return res.json()
-        })
-        .then((data) => data)
-        .catch(err => {
-            console.error(err)
-            toast({
-                title: "An Error Occurred",
-                description: "Could not update the selected user.",
-                variant: "destructive"
-            })
-            return null
-        })
-}
-
-// async function updateUserRole(caller: { role: string; } & User, targetId: string, newRole: Role) {
-//
-//     if (caller.id === targetId || !isAdmin(caller)) {
-//         throw new Error("User is not authorised to perform this action.")
-//     }
-//     await prisma.userRoles.update({
-//         where: { userId: targetId },
-//         data: { role: newRole },
-//     });
-// }
-
-export { getAllUsers, getAllRoleAssignments, getUser, getUserRole, patchUser };
+export { getAllUsers, getAllRoleAssignments, getUser, getUserRole };

@@ -6,9 +6,10 @@ import {capitaliseFirstLetter, isAdmin} from "@/lib/utils";
 import {User} from "next-auth";
 import EditProfile from "@/components/edit-profile";
 import {EditIcon} from "lucide-react";
-import {patchUser} from "@/lib/database/users";
 import {useState} from "react";
 import {Role} from "@prisma/client";
+import {patchUser} from "@/lib/api/users";
+import {toast} from "@/hooks/use-toast";
 
 type Props = {
     initialUserData: User
@@ -35,6 +36,13 @@ function ProfileSidebar({isCurrentUser, initialUserData}: Props) {
                         bio: bio === "" ? null : bio,
                         role: role as Role,
                     }
+                })
+            })
+            .catch(() => {
+                toast({
+                    title: "An Error Occurred",
+                    description: "Could not update the profile.",
+                    variant: "destructive"
                 })
             })
     }

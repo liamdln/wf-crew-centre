@@ -72,16 +72,18 @@ model Sector {
     toIcao        String   @map("to_icao")
     toName        String   @map("to_name")
     route         String
-    picId         String?  @unique @map("pic_id")
-    foId          String?  @unique @map("fo_id")
+    picId         String   @unique @map("pic_id")
+    foId          String   @unique @map("fo_id")
     departureTime DateTime @map("departure_time")
     arrivalTime   DateTime @map("arrival_time")
     blockTime     DateTime @map("block_time")
-    FO            User?    @relation("Sector_FO", fields: [foId], references: [id])
-    PIC           User?    @relation("Sector_PIC", fields: [picId], references: [id])
+    FO            User     @relation("Sector_FO", fields: [foId], references: [id])
+    PIC           User     @relation("Sector_PIC", fields: [picId], references: [id])
+
+    @@unique([fromIcao, toIcao], name: "tripId")
 }
 
-// data from https://www.partow.net/miscellaneous/airportdatabase/index.html#Downloads 
+// data from https://www.partow.net/miscellaneous/airportdatabase/index.html#Downloads
 model Airport {
     id        Int     @id @default(autoincrement())
     icaoCode  String? @map("icao_code") @db.Char(4)
@@ -89,14 +91,6 @@ model Airport {
     name      String? @db.VarChar(50)
     city      String? @db.VarChar(50)
     country   String? @db.VarChar(50)
-    latDeg    Int?    @map("lat_deg")
-    latMin    Int?    @map("lat_min")
-    latSec    Int?    @map("lat_sec")
-    latDir    String? @map("lat_dir") @db.Char(1)
-    lonDeg    Int?    @map("lon_deg")
-    lonMin    Int?    @map("lon_min")
-    lonSec    Int?    @map("lon_sec")
-    lonDir    String? @map("lon_dir") @db.Char(1)
     altitude  Int?
     latitude  Float?  @map("lat_deciman")
     longitude Float?  @map("lon_decimal")

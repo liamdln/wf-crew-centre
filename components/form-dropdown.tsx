@@ -1,3 +1,5 @@
+"use client";
+
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {FormControl} from "@/components/ui/form";
 import {Button} from "@/components/ui/button";
@@ -12,10 +14,11 @@ type Props = {
     key: string;
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
     setValue: UseFormSetValue<any>;
-    itemName: string;
+    hint: string;
+    loading?: boolean;
 }
 
-function FormDropdown({ items, fieldValue, setValue, key }: Props) {
+function FormDropdown({items, fieldValue, setValue, key, hint, loading}: Props) {
 
     return (
         <Popover>
@@ -24,30 +27,38 @@ function FormDropdown({ items, fieldValue, setValue, key }: Props) {
                     <Button
                         variant="outline"
                         role="combobox"
+                        disabled={loading}
                         className={cn(
                             "justify-between",
                             !fieldValue && "text-muted-foreground"
                         )}
                     >
-                        {fieldValue
-                            ? items.find(
-                                (item) => item.value === fieldValue
-                            )?.label
-                            : "Select language"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        {
+                            loading
+                                ?
+                                <span>Loading...</span>
+                                :
+                                fieldValue
+                                    ? items.find(
+                                        (item) => item.value === fieldValue
+                                    )?.label
+                                    : hint
+                        }
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
                     </Button>
                 </FormControl>
             </PopoverTrigger>
-            <PopoverContent className="p-0 xl:w-[500px]">
+            <PopoverContent className="p-0 xl:w-[500px] pointer-events-auto">
                 <Command>
-                    <CommandInput placeholder="Search language..." />
+                    <CommandInput placeholder="Search..."/>
                     <CommandList>
-                        <CommandEmpty>No language found.</CommandEmpty>
+                        <CommandEmpty>No items found.</CommandEmpty>
                         <CommandGroup>
                             {items.map((item) => (
                                 <CommandItem
                                     value={item.label}
                                     key={item.value}
+                                    className={"cursor-pointer"}
                                     onSelect={() => {
                                         setValue(key, item.value)
                                     }}

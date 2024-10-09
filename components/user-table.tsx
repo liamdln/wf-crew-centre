@@ -10,7 +10,7 @@ import {toast} from "@/hooks/use-toast";
 import LoadingSkeleton from "@/components/loading-skeleton";
 import {capitaliseFirstLetter, isAdmin} from "@/lib/utils";
 import EditProfile from "@/components/edit-profile";
-import {patchUser} from "@/lib/database/users";
+import {patchUser} from "@/lib/api/users";
 
 type Props = {
     currentUser: User;
@@ -32,7 +32,7 @@ function UserTable({currentUser, roleAssignments}: Props) {
         setLoading(true)
         fetch("/api/users", {cache: "no-store"})
             .then(res => {
-                if (!res.ok) throw Error(res.statusText)
+                if (!res.ok) throw new Error(`Could not refresh users: ${res.statusText}`)
                 return res.json()
             })
             .then(data => setAllUsers(data))
@@ -59,6 +59,13 @@ function UserTable({currentUser, roleAssignments}: Props) {
                 refreshUsers()
                 setUserRoles(old => {
                     return {...old, [userId]: role}
+                })
+            })
+            .catch(() => {
+                toast({
+                    title: "An Error Occurred",
+                    description: "Could not update the selected user.",
+                    variant: "destructive"
                 })
             })
     }
