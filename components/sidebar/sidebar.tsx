@@ -20,7 +20,7 @@ type Props = {
 function Sidebar({avatarUrl, username, role, id }: Props) {
 
     return (
-        <div className={"w-full h-full bg-secondary text-secondary-foreground p-3 flex flex-col justify-between"}>
+        <div className={"w-full h-full bg-card text-card-foreground p-3 flex flex-col justify-between"}>
             <div>
                 <Image src={logo} alt={"Team Velocity"} width={"390"} height={"185"}/>
             </div>

@@ -8,6 +8,7 @@ import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {Textarea} from "@/components/ui/textarea";
 import FormDropdown from "@/components/form-dropdown";
+import TimeSelector from "@/components/time-selector";
 
 const schema = z.object({
     id: z.string().min(4).max(10),
@@ -23,7 +24,7 @@ const schema = z.object({
 
 type Props = {
     users: { label: string; value: string; }[];
-    airports: { label: string; value: string }[];
+    airports: { value: string, label: string }[];
     loadingUsers: boolean;
     loadingAirports: boolean;
 }
@@ -79,9 +80,9 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports }: Props
                                     <FormControl>
                                         <FormDropdown items={airports}
                                                       fieldValue={field.value}
-                                                      key={"fromIcao"}
+                                                      formKey={"fromIcao"}
                                                       setValue={form.setValue}
-                                                      hint={"Select a departure ICAO"}
+                                                      hint={"Select a destination ICAO"}
                                                       loading={loadingAirports}
                                         />
                                     </FormControl>
@@ -98,7 +99,7 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports }: Props
                                     <FormControl>
                                         <FormDropdown items={airports}
                                                       fieldValue={field.value}
-                                                      key={"toIcao"}
+                                                      formKey={"toIcao"}
                                                       setValue={form.setValue}
                                                       hint={"Select an arrival ICAO"}
                                                       loading={loadingAirports}
@@ -133,7 +134,7 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports }: Props
                                         <div className={"w-full"}>
                                             <FormDropdown items={users}
                                                           fieldValue={field.value}
-                                                          key={"captain"}
+                                                          formKey={"captain"}
                                                           setValue={form.setValue}
                                                           hint={"Select a captain"}
                                                           loading={loadingUsers}
@@ -154,7 +155,7 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports }: Props
                                         <div className={"w-full"}>
                                             <FormDropdown items={users}
                                                           fieldValue={field.value}
-                                                          key={"firstOfficer"}
+                                                          formKey={"firstOfficer"}
                                                           setValue={form.setValue}
                                                           hint={"Select a first officer"}
                                                           loading={loadingUsers}
@@ -204,7 +205,9 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports }: Props
                                 <FormItem>
                                     <FormLabel>Block Time</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Origin ICAO" {...field} />
+                                        <TimeSelector hoursHeader={"Hours"}
+                                                      minutesHeader={"Minutes"}
+                                        />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>

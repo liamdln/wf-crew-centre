@@ -51,6 +51,14 @@ async function updateSector(sector: Sector) {
 
 }
 
+async function deleteSector(sectorId: string) {
+
+    return prisma.sector.delete({
+        where: {id: sectorId}
+    })
+
+}
+
 function validateSectorData(sector: Sector) {
     if (!sector.id ||
         !sector.fromIcao ||
@@ -67,4 +75,4 @@ function validateSectorData(sector: Sector) {
 
 }
 
-export { getSectors, getSectorByTrip, getSector, createSector, updateSector, validateSectorData }
+export { getSectors, getSectorByTrip, getSector, createSector, updateSector, validateSectorData, deleteSector }
