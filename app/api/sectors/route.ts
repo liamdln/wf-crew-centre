@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
     let data = null;
     try {
         data = await request.json()
+        console.log(data)
         if (!validateSectorData(data)) return Response.json({message: "Malformed body sent."}, { status: 400 })
     } catch (e) {
         console.error(e)

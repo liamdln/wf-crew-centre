@@ -9,6 +9,9 @@ import {Button} from "@/components/ui/button";
 import {Textarea} from "@/components/ui/textarea";
 import FormDropdown from "@/components/form-dropdown";
 import TimeSelector from "@/components/time-selector";
+import {useState} from "react";
+import {Loader2} from "lucide-react";
+import moment from "moment";
 
 const schema = z.object({
     id: z.string().min(4).max(10),
@@ -17,9 +20,14 @@ const schema = z.object({
     route: z.string().min(1),
     captain: z.string().min(1),
     firstOfficer: z.string().min(1),
-    departureTime: z.string().min(1),
-    arrivalTime: z.string().min(1),
-    blockTime: z.string().min(1),
+    departureTime: z.object({
+        hour: z.number(),
+        minute: z.number()
+    }),
+    arrivalTime: z.object({
+        hour: z.number(),
+        minute: z.number()
+    }),
 })
 
 type Props = {
@@ -31,6 +39,8 @@ type Props = {
 
 function NewSectorForm({ users, loadingUsers, airports, loadingAirports }: Props) {
 
+    const [loading, setLoading] = useState(false)
+
     const form = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),
         defaultValues: {
@@ -40,14 +50,40 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports }: Props
             route: "",
             captain: "",
             firstOfficer: "",
-            departureTime: "",
-            arrivalTime: "",
-            blockTime: "",
+            departureTime: { hour: 0, minute: 0 },
+            arrivalTime: { hour: 0, minute: 0 },
         },
     })
 
-    function onSubmit(values: z.infer<typeof schema>) {
-        console.log(values)
+    const onSubmit = (values: z.infer<typeof schema>) => {
+        setLoading(true)
+
+        const departureTime = moment().set({ hour: values.departureTime.hour, minute: values.departureTime.minute, seconds: 0 })
+        const arrivalTime = moment().set({ hour: values.arrivalTime.hour, minute: values.arrivalTime.minute, seconds: 0 })
+        const blockTime = moment.duration(arrivalTime.diff(departureTime))
+
+        const body = {
+            ...values,
+            fromName: airports.filter(airport => airport.value === values.fromIcao)[0].label,
+            toName: airports.filter(airport => airport.value === values.toIcao)[0].label,
+            picId: values.captain,
+            foId: values.firstOfficer,
+            departureTime: departureTime.toDate(),
+            arrivalTime: arrivalTime.toDate(),
+            blockTime: `${blockTime.hours()}:${blockTime.minutes()}`
+        }
+
+        fetch("/api/sectors/", {
+            method: "POST",
+            body: JSON.stringify(body)
+        })
+            .then(res => {
+                if (!res.ok) throw new Error(res.statusText)
+                return res.json()
+            })
+            .then(data => console.log(data))
+            .catch(err => console.error(err))
+            .finally(() => setLoading(false))
     }
 
     return (
@@ -79,9 +115,8 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports }: Props
                                     <FormLabel>Origin ICAO Code</FormLabel>
                                     <FormControl>
                                         <FormDropdown items={airports}
-                                                      fieldValue={field.value}
-                                                      formKey={"fromIcao"}
-                                                      setValue={form.setValue}
+                                                      value={field.value}
+                                                      onChange={field.onChange}
                                                       hint={"Select a destination ICAO"}
                                                       loading={loadingAirports}
                                         />
@@ -98,9 +133,8 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports }: Props
                                     <FormLabel>Destination ICAO Code</FormLabel>
                                     <FormControl>
                                         <FormDropdown items={airports}
-                                                      fieldValue={field.value}
-                                                      formKey={"toIcao"}
-                                                      setValue={form.setValue}
+                                                      value={field.value}
+                                                      onChange={field.onChange}
                                                       hint={"Select an arrival ICAO"}
                                                       loading={loadingAirports}
                                         />
@@ -133,9 +167,8 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports }: Props
                                     <FormControl>
                                         <div className={"w-full"}>
                                             <FormDropdown items={users}
-                                                          fieldValue={field.value}
-                                                          formKey={"captain"}
-                                                          setValue={form.setValue}
+                                                          value={field.value}
+                                                          onChange={field.onChange}
                                                           hint={"Select a captain"}
                                                           loading={loadingUsers}
                                             />
@@ -154,9 +187,8 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports }: Props
                                     <FormControl>
                                         <div className={"w-full"}>
                                             <FormDropdown items={users}
-                                                          fieldValue={field.value}
-                                                          formKey={"firstOfficer"}
-                                                          setValue={form.setValue}
+                                                          value={field.value}
+                                                          onChange={field.onChange}
                                                           hint={"Select a first officer"}
                                                           loading={loadingUsers}
                                             />
@@ -169,11 +201,14 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports }: Props
                         <FormField
                             control={form.control}
                             name="departureTime"
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Departure Time</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Origin ICAO" {...field} />
+                                        <TimeSelector displayAsTime={true}
+                                                      value={field.value}
+                                                      onChange={field.onChange}
+                                        />
                                     </FormControl>
                                     <FormDescription>
                                         Time should be in Zulu Time (GMT).
@@ -185,11 +220,14 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports }: Props
                         <FormField
                             control={form.control}
                             name="arrivalTime"
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Arrival Time</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Origin ICAO" {...field} />
+                                        <TimeSelector displayAsTime={true}
+                                                      value={field.value}
+                                                      onChange={field.onChange}
+                                        />
                                     </FormControl>
                                     <FormDescription>
                                         Time should be in Zulu Time (GMT).
@@ -198,24 +236,20 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports }: Props
                                 </FormItem>
                             )}
                         />
-                        <FormField
-                            control={form.control}
-                            name="blockTime"
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormLabel>Block Time</FormLabel>
-                                    <FormControl>
-                                        <TimeSelector hoursHeader={"Hours"}
-                                                      minutesHeader={"Minutes"}
-                                        />
-                                    </FormControl>
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
-                        />
                     </div>
                 </div>
-                <Button type="submit">Submit</Button>
+                <Button type="submit" disabled={loading}>
+                    {
+                        loading
+                        ?
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Please wait
+                            </>
+                            :
+                            <>Submit</>
+                    }
+                </Button>
             </form>
         </Form>
     )

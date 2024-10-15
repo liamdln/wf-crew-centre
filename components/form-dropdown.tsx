@@ -5,21 +5,19 @@ import {FormControl} from "@/components/ui/form";
 import {Button} from "@/components/ui/button";
 import {cn} from "@/lib/utils";
 import {Check, ChevronsUpDown} from "lucide-react";
-import {UseFormSetValue} from "react-hook-form";
 import {Input} from "@/components/ui/input";
 import {useState} from "react";
 
 type Props = {
     items: { value: string; label: string }[];
-    fieldValue: string | number;
-    formKey: string;
-    //eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setValue: UseFormSetValue<any>;
     hint: string;
     loading?: boolean;
+    value: string | number;
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onChange: (...event: any[]) => void
 }
 
-function FormDropdown({items, fieldValue, setValue, formKey, hint, loading}: Props) {
+function FormDropdown({items, value, onChange, hint, loading}: Props) {
 
     const [searchTerm, setSearchTerm] = useState("");
 
@@ -28,10 +26,6 @@ function FormDropdown({items, fieldValue, setValue, formKey, hint, loading}: Pro
             return item.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 item.value.toLowerCase().includes(searchTerm.toLowerCase())
         })
-    }
-
-    const setFormValue = (value: string | number) => {
-        setValue(formKey, value)
     }
 
     return (
@@ -44,7 +38,7 @@ function FormDropdown({items, fieldValue, setValue, formKey, hint, loading}: Pro
                         disabled={loading}
                         className={cn(
                             "justify-between",
-                            !fieldValue && "text-muted-foreground"
+                            !value && "text-muted-foreground"
                         )}
                     >
                         {
@@ -52,9 +46,9 @@ function FormDropdown({items, fieldValue, setValue, formKey, hint, loading}: Pro
                                 ?
                                 <span>Loading...</span>
                                 :
-                                fieldValue
+                                value
                                     ? items.find(
-                                        (item) => item.value === fieldValue)?.label
+                                        (item) => item.value === value)?.label
                                     : hint
                         }
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
@@ -75,12 +69,12 @@ function FormDropdown({items, fieldValue, setValue, formKey, hint, loading}: Pro
                                     value={item.value}
                                     className={"flex gap-1 items-center p-1.5 cursor-pointer hover:bg-accent hover:text-accent-foreground"}
                                     onClick={() => {
-                                        setFormValue(item.value)
+                                        onChange(item.value)
                                     }}
                                 >
                                     <Check
                                         className={cn("mr-2 h-4 w-4",
-                                            item.value === fieldValue
+                                            item.value === value
                                                 ? "opacity-100"
                                                 : "opacity-0"
                                         )}
@@ -91,34 +85,6 @@ function FormDropdown({items, fieldValue, setValue, formKey, hint, loading}: Pro
                         }
                     </ul>
                 </div>
-                {/*<Command>*/}
-                {/*    <CommandInput placeholder="Search..."/>*/}
-                {/*    <CommandList>*/}
-                {/*        <CommandEmpty>No items found.</CommandEmpty>*/}
-                {/*        <CommandGroup>*/}
-                {/*            {items.map((item) => (*/}
-                {/*                <CommandItem*/}
-                {/*                    value={item.label}*/}
-                {/*                    key={item.value}*/}
-                {/*                    className={"cursor-pointer"}*/}
-                {/*                    onSelect={() => {*/}
-                {/*                        setValue(key, item.value)*/}
-                {/*                    }}*/}
-                {/*                >*/}
-                {/*                    <Check*/}
-                {/*                        className={cn(*/}
-                {/*                            "mr-2 h-4 w-4",*/}
-                {/*                            item.value === fieldValue*/}
-                {/*                                ? "opacity-100"*/}
-                {/*                                : "opacity-0"*/}
-                {/*                        )}*/}
-                {/*                    />*/}
-                {/*                    {item.label}*/}
-                {/*                </CommandItem>*/}
-                {/*            ))}*/}
-                {/*        </CommandGroup>*/}
-                {/*    </CommandList>*/}
-                {/*</Command>*/}
             </PopoverContent>
         </Popover>
     )
