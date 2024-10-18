@@ -79,8 +79,8 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports, setOpen
 
         const body: Sector = {
             ...values,
-            fromName: airports.filter(airport => airport.value === values.fromIcao)[0].label,
-            toName: airports.filter(airport => airport.value === values.toIcao)[0].label,
+            fromName: airports.filter(airport => airport.value === values.fromIcao)[0].label.split(" - ")[1],
+            toName: airports.filter(airport => airport.value === values.toIcao)[0].label.split(" - ")[1],
             departureTime: departureTime.toDate(),
             arrivalTime: arrivalTime.toDate(),
             blockTime: `${blockTime.hours()}:${blockTime.minutes()}`

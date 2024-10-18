@@ -78,7 +78,7 @@ function SectorModal({ children, sector }: Props) {
     }
 
     const title = sector?.id ? "Edit Sector" : "New Sector"
-    const description = sector?.id ? `Editing sector ${sector.id}.` : "Adds a new sector to the sector list."
+    const description = sector?.id ? `Editing sector WF${sector.id}.` : "Adds a new sector to the sector list."
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>

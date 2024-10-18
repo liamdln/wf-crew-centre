@@ -84,7 +84,7 @@ function SectorTable() {
                                     {
                                         sectors.map(sector => (
                                             <TableRow key={sector.id}>
-                                                <TableCell>{sector.id}</TableCell>
+                                                <TableCell>WF{sector.id}</TableCell>
                                                 <TableCell>{sector.fromIcao}</TableCell>
                                                 <TableCell>{sector.toIcao}</TableCell>
                                                 <TableCell className={"max-w-32 overflow-x-scroll"}>{sector.route.toUpperCase()}</TableCell>
@@ -117,7 +117,7 @@ function SectorTable() {
                                                                             <TableHead>Destination</TableHead>
                                                                         </TableRow>
                                                                         <TableRow>
-                                                                            <TableCell>{ sector.id }</TableCell>
+                                                                            <TableCell>WF{ sector.id }</TableCell>
                                                                             <TableCell>{ sector.fromIcao }</TableCell>
                                                                             <TableCell>{ sector.toIcao }</TableCell>
                                                                         </TableRow>
