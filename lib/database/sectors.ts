@@ -3,14 +3,16 @@ import {Sector} from "@prisma/client";
 
 async function getSectors() {
 
-    return prisma.sector.findMany();
+    return prisma.sector.findMany({
+        orderBy: [{ id: "asc" }]
+    });
 
 }
 
-async function getSector(id: string) {
+async function getSector(id: number) {
 
     return prisma.sector.findUnique({
-        where: {id}
+        where: {id},
     });
 
 }
@@ -39,19 +41,21 @@ async function createSector(sector: Sector) {
 
 }
 
-async function updateSector(sector: Sector) {
+async function updateSector(sectorId: number, sector: Sector) {
 
     // validate
     if (!validateSectorData(sector)) throw new Error("Invalid sector data was sent.")
 
+    console.log(sector)
+
     return prisma.sector.update({
-        where: { id: sector.id },
+        where: { id: sectorId },
         data: sector
     })
 
 }
 
-async function deleteSector(sectorId: string) {
+async function deleteSector(sectorId: number) {
 
     return prisma.sector.delete({
         where: {id: sectorId}

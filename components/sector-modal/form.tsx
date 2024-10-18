@@ -17,7 +17,7 @@ import {Sector} from "@prisma/client";
 import {SectorContext} from "@/context/sectors";
 
 const schema = z.object({
-    id: z.string().min(4).max(10),
+    id: z.number().min(1000).max(9999),
     fromIcao: z.string().min(4).max(4),
     toIcao: z.string().min(4).max(4),
     route: z.string().min(1),
@@ -53,10 +53,10 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports, setOpen
     const form = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),
         defaultValues: {
-            id: sector?.id ?? "",
+            id: sector?.id,
             fromIcao: sector?.fromIcao ?? "",
             toIcao: sector?.toIcao ?? "",
-            route: sector?.route ?? "",
+            route: sector?.route.toUpperCase() ?? "",
             picId: sector?.picId ?? "",
             foId: sector?.foId ?? "",
             departureTime: {
@@ -88,7 +88,7 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports, setOpen
 
         if (sector?.id) {
             // sector exists so we are updating it.
-            updateSector(body)
+            updateSector(sector.id, body)
                 .then(() => setOpen(false))
                 .catch(err => {
                     console.error(err)
@@ -128,10 +128,14 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports, setOpen
                                 <FormItem>
                                     <FormLabel>Sector ID</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Sector ID" {...field} />
+                                        <Input type={"number"}
+                                               placeholder="Sector ID"
+                                               value={field.value}
+                                               onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                        />
                                     </FormControl>
                                     <FormDescription>
-                                        The <em><code>WFxxxx</code></em> designated code.
+                                        The <em><code>WFxxxx</code></em> designated code. Don&apos;t include the <em><code>WF</code></em> prefix.
                                     </FormDescription>
                                     <FormMessage/>
                                 </FormItem>

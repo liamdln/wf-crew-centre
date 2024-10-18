@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const destination = searchParams.get("destination")
 
     if (id) {
-        const sector = await getSector(id)
+        const sector = await getSector(+id)
 
         if (!sector) {
             return Response.json({ message: `Sector with ID ${id} not found.` }, { status: 404 })
@@ -83,13 +83,20 @@ export async function PUT(request: NextRequest) {
         return Response.json({message: "You are not authorised to access this resource."}, { status: 403 })
     }
 
+    const searchParams = request.nextUrl.searchParams
+    const id = searchParams.get("id")
+
+    if (!id) {
+        return Response.json({message: "No ID was sent with the request."}, { status: 400 })
+    }
+
     const data: Sector | null = await request.json();
 
     if (!data) return Response.json({message: "Malformed body sent."}, { status: 400 })
 
     try {
 
-        const newSector = await updateSector(data)
+        const newSector = await updateSector(+id, data)
         return Response.json(newSector)
 
     } catch (e) {
@@ -114,8 +121,13 @@ export async function DELETE(request: NextRequest) {
         return Response.json({message: "No ID was sent with the request."}, { status: 400 })
     }
 
-    const deletedSector = await deleteSector(id)
+    try {
+        const deletedSector = await deleteSector(+id)
+        return Response.json(deletedSector)
+    } catch (e) {
+        console.error(e)
+        return Response.json({message: "A server error occurred while creating the sector."}, { status: 500 })
+    }
 
-    return Response.json(deletedSector)
 
 }

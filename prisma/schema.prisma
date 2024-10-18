@@ -17,8 +17,8 @@ model User {
     createdAt     DateTime   @default(now())
     updatedAt     DateTime   @updatedAt
     accounts      Account[]
-    FirstOfficer  Sector?    @relation("Sector_FO")
-    PilotFlying   Sector?    @relation("Sector_PIC")
+    FirstOfficer  Sector[]    @relation("Sector_FO")
+    PilotFlying   Sector[]    @relation("Sector_PIC")
     sessions      Session[]
     UserRoles     UserRoles?
 }
@@ -66,14 +66,14 @@ model UserRoles {
 }
 
 model Sector {
-    id            String   @id
+    id            Int   @id
     fromIcao      String   @map("from_icao")
     fromName      String   @map("from_name")
     toIcao        String   @map("to_icao")
     toName        String   @map("to_name")
     route         String
-    picId         String   @unique @map("pic_id")
-    foId          String   @unique @map("fo_id")
+    picId         String   @map("pic_id")
+    foId          String   @map("fo_id")
     departureTime DateTime @map("departure_time")
     arrivalTime   DateTime @map("arrival_time")
     blockTime     String   @map("block_time")

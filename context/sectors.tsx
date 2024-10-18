@@ -13,7 +13,9 @@ type ContextType = {
     sectorsBusy: boolean;
     getSectors: () => Promise<Sector[]>;
     addSector: (sector: Sector) => Promise<void>;
-    updateSector: (sector: Sector) => Promise<void>;
+    updateSector: (id: number, sector: Sector) => Promise<void>;
+    deleteSector: (sectorId: number) => Promise<void>;
+    reorderSectors: () => void;
 }
 
 const initialContext: ContextType = {
@@ -22,6 +24,8 @@ const initialContext: ContextType = {
     getSectors: () => Promise.resolve([]),
     addSector: () => Promise.resolve(),
     updateSector: () => Promise.resolve(),
+    deleteSector: () => Promise.resolve(),
+    reorderSectors: () => null,
 }
 
 const SectorContext = createContext(initialContext)
@@ -59,20 +63,46 @@ function SectorProvider({children}: Props) {
     const addSector = async (sector: Sector) => {
         setSectorsBusy(true)
         await fetch("/api/sectors", {
-                method: "POST",
-                body: JSON.stringify(sector),
-            })
+            method: "POST",
+            body: JSON.stringify(sector),
+        })
             .then((res) => {
                 if (!res.ok) throw new Error(res.statusText)
                 return res.json()
             })
-            .then(data => data)
+            .then(data => {
+                setSectors(old => [...old, sector])
+                return data;
+            })
             .finally(() => setSectorsBusy(false))
     }
 
-    const updateSector = async (sector: Sector) => {
+    const deleteSector = async (sectorId: number) => {
         setSectorsBusy(true)
-        await fetch("/api/sectors", {
+        await fetch(`/api/sectors?id=${sectorId}`, {
+            method: "DELETE"
+        })
+            .then((res) => {
+                if (!res.ok) throw new Error(res.statusText)
+                const sectorIndex = sectors.map(sector => sector.id).indexOf(sectorId)
+                setSectors(old => {
+                    const lhs = old.slice(0, sectorIndex)
+                    const rhs = old.slice(sectorIndex + 1, old.length)
+                    return lhs.concat(rhs)
+                })
+            })
+            .finally(() => setSectorsBusy(false))
+    }
+
+    const reorderSectors = () => {
+        setSectorsBusy(true)
+        setSectors(old => old.toSorted((a, b) => a.id - b.id))
+        setSectorsBusy(false)
+    }
+
+    const updateSector = async (id: number, sector: Sector) => {
+        setSectorsBusy(true)
+        await fetch(`/api/sectors?id=${id}`, {
             method: "PUT",
             body: JSON.stringify(sector),
         })
@@ -80,7 +110,16 @@ function SectorProvider({children}: Props) {
                 if (!res.ok) throw new Error(res.statusText)
                 return res.json()
             })
-            .then(data => data)
+            .then(data => {
+                const sectorIndex = sectors.map(sector => sector.id).indexOf(
+                    sector.id === id ? sector.id : id
+                )
+                setSectors(old => {
+                    old[sectorIndex] = sector
+                    return old
+                })
+                return data
+            })
             .finally(() => setSectorsBusy(false))
     }
 
@@ -91,6 +130,8 @@ function SectorProvider({children}: Props) {
             getSectors: getSectors,
             addSector: addSector,
             updateSector: updateSector,
+            deleteSector: deleteSector,
+            reorderSectors
         }}>
             {children}
         </SectorContext.Provider>

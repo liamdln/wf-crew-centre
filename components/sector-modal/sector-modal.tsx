@@ -9,13 +9,18 @@ import {
     DialogTrigger
 } from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
-import NewSectorForm from "@/components/new-sector/form";
-import {useEffect, useState} from "react";
+import NewSectorForm from "@/components/sector-modal/form";
+import React, {useEffect, useState} from "react";
 import {User} from "next-auth";
 import {toast} from "@/hooks/use-toast";
-import {Airport} from "@prisma/client";
+import {Airport, Sector} from "@prisma/client";
 
-function NewSector() {
+type Props = {
+    children: React.ReactNode
+    sector?: Sector
+}
+
+function SectorModal({ children, sector }: Props) {
 
     const [users, setUsers] = useState<{ value: string, label: string }[]>([])
     const [loadingUsers, setLoadingUsers] = useState(true)
@@ -72,16 +77,19 @@ function NewSector() {
             .finally(() => setLoadingAirports(false))
     }
 
+    const title = sector?.id ? "Edit Sector" : "New Sector"
+    const description = sector?.id ? `Editing sector ${sector.id}.` : "Adds a new sector to the sector list."
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button>New Sector</Button>
+                { children }
             </DialogTrigger>
             <DialogContent className={"max-w-[75%]"} onInteractOutside={(e) => e.preventDefault()}>
                 <DialogHeader>
-                    <DialogTitle>New Sector</DialogTitle>
+                    <DialogTitle>{ title }</DialogTitle>
                     <DialogDescription>
-                        Adds a new sector to the sector list.
+                        { description }
                     </DialogDescription>
                 </DialogHeader>
                 <NewSectorForm users={users}
@@ -89,6 +97,7 @@ function NewSector() {
                                airports={airports}
                                loadingAirports={loadingAirports}
                                setOpen={setOpen}
+                               sector={sector}
                 />
             </DialogContent>
         </Dialog>
@@ -97,4 +106,4 @@ function NewSector() {
 
 }
 
-export default NewSector
+export default SectorModal
