@@ -28,31 +28,36 @@ async function Sectors() {
                     sectors.map((sector) => (
                         <Card key={sector.id}>
                             <CardHeader>
-                                <div className={"flex items-center justify-between p-3 rounded-t-lg bg-primary -m-6 mb-0"}>
+                                <div
+                                    className={"flex items-center justify-between p-3 rounded-t-lg bg-primary -m-6 mb-2"}>
                                     <h1 className={"text-xl font-bold"}>WF{sector.id}</h1>
                                     <p className={"text-sm"}>NPT11W</p>
                                 </div>
                                 <CardTitle className={"flex justify-between items-center"}>
-                                    <div>
-                                        <span
-                                            className={"text-xs text-muted-foreground"}>{moment(sector.departureTime).locale("en-gb").format("LT")}</span>
+                                    <div className={"w-1/3 overflow-x-scroll"}>
+                                        <p className={"text-xs text-muted-foreground"}>
+                                            {moment(sector.departureTime).locale("en-gb").format("LT")}
+                                        </p>
                                         <div className={"flex gap-3"}>
                                             <PlaneTakeoffIcon/>
                                             {sector.fromIcao}
                                         </div>
-                                        <span className={"text-xs text-muted-foreground"}>{sector.fromName}</span>
+                                        <p className={"text-xs text-muted-foreground"}>{sector.fromName}</p>
                                     </div>
-                                    <div className={"flex pt-6"}>
+                                    <div className={"flex justify-center"}>
                                         <Dot/><Dot/><Dot/><ChevronRightIcon/>
                                     </div>
-                                    <div>
-                                        <span
-                                            className={"text-xs text-muted-foreground"}>{moment(sector.arrivalTime).locale("en-gb").format("LT")}</span>
-                                        <div className={"flex gap-3"}>
-                                            <PlaneLandingIcon/>
-                                            {sector.toIcao}
+                                    <div className={"w-1/3 overflow-x-scroll flex flex-col items-end"}>
+                                        <div>
+                                            <p className={"text-xs text-muted-foreground"}>
+                                                {moment(sector.arrivalTime).locale("en-gb").format("LT")}
+                                            </p>
+                                            <div className={"flex gap-3"}>
+                                                <PlaneLandingIcon/>
+                                                {sector.toIcao}
+                                            </div>
+                                            <p className={"text-xs text-muted-foreground"}>{sector.toName}</p>
                                         </div>
-                                        <span className={"text-xs text-muted-foreground"}>{sector.toName}</span>
                                     </div>
                                 </CardTitle>
                             </CardHeader>
