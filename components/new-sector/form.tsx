@@ -9,17 +9,20 @@ import {Button} from "@/components/ui/button";
 import {Textarea} from "@/components/ui/textarea";
 import FormDropdown from "@/components/form-dropdown";
 import TimeSelector from "@/components/time-selector";
-import {useState} from "react";
+import {useContext, useState} from "react";
 import {Loader2} from "lucide-react";
 import moment from "moment";
+import {toast} from "@/hooks/use-toast";
+import {Sector} from "@prisma/client";
+import {SectorContext} from "@/context/sectors";
 
 const schema = z.object({
     id: z.string().min(4).max(10),
     fromIcao: z.string().min(4).max(4),
     toIcao: z.string().min(4).max(4),
     route: z.string().min(1),
-    captain: z.string().min(1),
-    firstOfficer: z.string().min(1),
+    picId: z.string().min(1),
+    foId: z.string().min(1),
     departureTime: z.object({
         hour: z.number(),
         minute: z.number()
@@ -28,6 +31,9 @@ const schema = z.object({
         hour: z.number(),
         minute: z.number()
     }),
+}).refine(data => data.picId !== data.foId, {
+    message: "Captain and First Officer cannot be the same.",
+    path: ["foId"]
 })
 
 type Props = {
@@ -35,23 +41,32 @@ type Props = {
     airports: { value: string, label: string }[];
     loadingUsers: boolean;
     loadingAirports: boolean;
+    setOpen: (open: boolean) => void;
+    sector?: Sector;
 }
 
-function NewSectorForm({ users, loadingUsers, airports, loadingAirports }: Props) {
+function NewSectorForm({ users, loadingUsers, airports, loadingAirports, setOpen, sector }: Props) {
 
+    const { addSector, updateSector } = useContext(SectorContext)
     const [loading, setLoading] = useState(false)
 
     const form = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),
         defaultValues: {
-            id: "",
-            fromIcao: "",
-            toIcao: "",
-            route: "",
-            captain: "",
-            firstOfficer: "",
-            departureTime: { hour: 0, minute: 0 },
-            arrivalTime: { hour: 0, minute: 0 },
+            id: sector?.id ?? "",
+            fromIcao: sector?.fromIcao ?? "",
+            toIcao: sector?.toIcao ?? "",
+            route: sector?.route ?? "",
+            picId: sector?.picId ?? "",
+            foId: sector?.foId ?? "",
+            departureTime: {
+                hour: sector?.departureTime ? moment(sector?.departureTime).hours() : 0,
+                minute: sector?.departureTime ? moment(sector?.departureTime).minutes() : 0,
+            },
+            arrivalTime: {
+                hour: sector?.arrivalTime ? moment(sector?.arrivalTime).hours() : 0,
+                minute: sector?.departureTime ? moment(sector?.arrivalTime).minutes() : 0
+            },
         },
     })
 
@@ -62,28 +77,43 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports }: Props
         const arrivalTime = moment().set({ hour: values.arrivalTime.hour, minute: values.arrivalTime.minute, seconds: 0 })
         const blockTime = moment.duration(arrivalTime.diff(departureTime))
 
-        const body = {
+        const body: Sector = {
             ...values,
             fromName: airports.filter(airport => airport.value === values.fromIcao)[0].label,
             toName: airports.filter(airport => airport.value === values.toIcao)[0].label,
-            picId: values.captain,
-            foId: values.firstOfficer,
             departureTime: departureTime.toDate(),
             arrivalTime: arrivalTime.toDate(),
             blockTime: `${blockTime.hours()}:${blockTime.minutes()}`
         }
 
-        fetch("/api/sectors/", {
-            method: "POST",
-            body: JSON.stringify(body)
-        })
-            .then(res => {
-                if (!res.ok) throw new Error(res.statusText)
-                return res.json()
-            })
-            .then(data => console.log(data))
-            .catch(err => console.error(err))
-            .finally(() => setLoading(false))
+        if (sector?.id) {
+            // sector exists so we are updating it.
+            updateSector(body)
+                .then(() => setOpen(false))
+                .catch(err => {
+                    console.error(err)
+                    toast({
+                        title: "An Error Occurred",
+                        description: "Could not update sector.",
+                        variant: "destructive"
+                    })
+                })
+                .finally(() => setLoading(false))
+        } else {
+            // sector does not exist to create
+            addSector(body)
+                .then(() => setOpen(false))
+                .catch(err => {
+                    console.error(err)
+                    toast({
+                        title: "An Error Occurred",
+                        description: "Could not publish sector.",
+                        variant: "destructive"
+                    })
+                })
+                .finally(() => setLoading(false))
+        }
+
     }
 
     return (
@@ -160,7 +190,7 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports }: Props
                     <div className={"flex flex-col gap-3 w-full"}>
                         <FormField
                             control={form.control}
-                            name="captain"
+                            name="picId"
                             render={({field}) => (
                                 <FormItem>
                                     <FormLabel>Captain</FormLabel>
@@ -180,7 +210,7 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports }: Props
                         />
                         <FormField
                             control={form.control}
-                            name="firstOfficer"
+                            name="foId"
                             render={({field}) => (
                                 <FormItem>
                                     <FormLabel>First Officer</FormLabel>

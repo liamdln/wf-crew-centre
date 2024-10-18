@@ -1,7 +1,8 @@
 import {Separator} from "@/components/ui/separator";
-import NewSector from "@/components/new-sector";
+import SectorTable from "@/components/sector-table";
+import {SectorProvider} from "@/context/sectors";
 
-function SectorManagement() {
+async function SectorManagement() {
 
     return (
         <div>
@@ -9,9 +10,9 @@ function SectorManagement() {
                 <h1 className={"text-4xl font-bold mb-1"}>Sector Management</h1>
                 <Separator/>
             </div>
-            <div>
-                <NewSector />
-            </div>
+            <SectorProvider>
+                <SectorTable />
+            </SectorProvider>
         </div>
     )
 

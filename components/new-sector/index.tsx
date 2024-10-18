@@ -23,6 +23,8 @@ function NewSector() {
     const [airports, setAirports] = useState<{ value: string, label: string }[]>([])
     const [loadingAirports, setLoadingAirports] = useState(true)
 
+    const [open, setOpen] = useState<boolean>(false)
+
     useEffect(() => {
         fetchUsers()
         fetchAirports()
@@ -71,7 +73,7 @@ function NewSector() {
     }
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button>New Sector</Button>
             </DialogTrigger>
@@ -86,9 +88,11 @@ function NewSector() {
                                loadingUsers={loadingUsers}
                                airports={airports}
                                loadingAirports={loadingAirports}
+                               setOpen={setOpen}
                 />
             </DialogContent>
         </Dialog>
+
     )
 
 }

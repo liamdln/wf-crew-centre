@@ -4,7 +4,7 @@ import {isAdmin} from "@/lib/utils";
 import {
     createSector,
     deleteSector,
-    getSector,
+    getSector, getSectorByTrip,
     getSectors,
     updateSector,
     validateSectorData
@@ -18,18 +18,31 @@ export async function GET(request: NextRequest) {
 
     const searchParams = request.nextUrl.searchParams
     const id = searchParams.get("id")
+    const origin = searchParams.get("origin")
+    const destination = searchParams.get("destination")
 
-    if (!id) {
+    if (id) {
+        const sector = await getSector(id)
+
+        if (!sector) {
+            return Response.json({ message: `Sector with ID ${id} not found.` }, { status: 404 })
+        }
+        return Response.json(sector)
+    } else if (origin && destination) {
+        const sector = getSectorByTrip(origin, destination)
+
+        if (!sector) {
+            return Response.json({
+                message: `Sector with the specified origin (${origin}) and destination ${destination} was not found.` },
+                { status: 404 }
+            )
+        }
+        return Response.json(sector)
+
+    } else {
         const allSectors = await getSectors()
         return Response.json(allSectors)
     }
-
-    const sector = await getSector(id)
-
-    if (!sector) {
-        return Response.json({ message: `Sector with ID ${id} not found.` }, { status: 404 })
-    }
-    return Response.json(sector)
 
 }
 
@@ -44,7 +57,6 @@ export async function POST(request: NextRequest) {
     let data = null;
     try {
         data = await request.json()
-        console.log(data)
         if (!validateSectorData(data)) return Response.json({message: "Malformed body sent."}, { status: 400 })
     } catch (e) {
         console.error(e)
