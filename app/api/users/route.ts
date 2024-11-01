@@ -63,9 +63,13 @@ export async function PATCH(request: NextRequest) {
         })
 
         if (id !== session.user.id) {
-            updatedRole = await prisma.userRoles.update({
+            updatedRole = await prisma.userRoles.upsert({
                 where: {userId: id},
-                data: {
+                create: {
+                    userId: id,
+                    role: data.role,
+                },
+                update: {
                     role: data.role
                 }
             })
@@ -82,6 +86,34 @@ export async function PATCH(request: NextRequest) {
     }
 
     return Response.json({ message: "success" });
+
+}
+
+export async function DELETE(request: NextRequest) {
+
+    const session = await auth()
+    if (!session) return Response.json({message: "You need to be logged in to access this resource."}, { status: 401 })
+    if (!isAdmin(session.user)) {
+        return Response.json({message: "You are not authorised to access this resource."}, { status: 403 })
+    }
+
+    const searchParams = request.nextUrl.searchParams
+    const id = searchParams.get("id")
+
+    if (!id) {
+        return Response.json({message: "No ID was sent with the request."}, { status: 400 })
+    }
+
+    try {
+        const deletedUser = await prisma.user.delete({
+            where: { id: id }
+        })
+        return Response.json(deletedUser)
+    } catch (e) {
+        console.error(e)
+        return Response.json({message: "A server error occurred while deleting the user."}, { status: 500 })
+    }
+
 
 }
 

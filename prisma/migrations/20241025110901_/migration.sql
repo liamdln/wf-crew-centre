@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Sector" ALTER COLUMN "pic_id" DROP NOT NULL,
+ALTER COLUMN "fo_id" DROP NOT NULL;

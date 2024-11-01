@@ -1,6 +1,7 @@
 import {prisma} from "@/prisma";
 import {Role} from "@prisma/client";
 import {User} from "next-auth";
+import {EditProfileFormData} from "@/components/dialog-forms/edit-profile/types";
 
 async function getAllUsers() {
     const allUsers = await prisma.user.findMany({
@@ -49,6 +50,27 @@ async function getUser(userId: string): Promise<User | null> {
     }
 }
 
+async function updateUser(userId: string, { name, bio, role }: EditProfileFormData) {
+
+    const userRes = await prisma.user.update({
+        where: { id: userId },
+        data: {
+            name,
+            bio
+        }
+    })
+
+    const roleRes = await prisma.userRoles.update({
+        where: { userId: userId },
+        data: {
+            role: role as Role
+        }
+    })
+
+    return { role: roleRes.role, ...userRes }
+
+}
+
 async function getAllRoleAssignments() {
     const res = await prisma.userRoles.findMany();
 
@@ -60,10 +82,16 @@ async function getAllRoleAssignments() {
     return assignments
 }
 
+async function deleteUser(userId: string) {
+    return prisma.user.delete({
+        where: { id: userId }
+    })
+}
+
 async function getUserRole(userId: string): Promise<Role> {
     const role = await prisma.userRoles.findUnique({where: { userId }})
     if (!role) return "member"
     return role.role
 }
 
-export { getAllUsers, getAllRoleAssignments, getUser, getUserRole };
+export { getAllUsers, getAllRoleAssignments, getUser, getUserRole, updateUser, deleteUser };

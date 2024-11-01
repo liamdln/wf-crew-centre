@@ -8,7 +8,7 @@ import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {Textarea} from "@/components/ui/textarea";
 import FormDropdown from "@/components/form-dropdown";
-import TimeSelector from "@/components/time-selector";
+import DateTimeSelector from "@/components/date-time-selector";
 import {useContext, useState} from "react";
 import {Loader2} from "lucide-react";
 import moment from "moment";
@@ -239,9 +239,8 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports, setOpen
                                 <FormItem>
                                     <FormLabel>Departure Time</FormLabel>
                                     <FormControl>
-                                        <TimeSelector displayAsTime={true}
-                                                      value={field.value}
-                                                      onChange={field.onChange}
+                                        <DateTimeSelector value={field.value}
+                                                          onChange={field.onChange}
                                         />
                                     </FormControl>
                                     <FormDescription>
@@ -258,9 +257,8 @@ function NewSectorForm({ users, loadingUsers, airports, loadingAirports, setOpen
                                 <FormItem>
                                     <FormLabel>Arrival Time</FormLabel>
                                     <FormControl>
-                                        <TimeSelector displayAsTime={true}
-                                                      value={field.value}
-                                                      onChange={field.onChange}
+                                        <DateTimeSelector value={field.value}
+                                                          onChange={field.onChange}
                                         />
                                     </FormControl>
                                     <FormDescription>

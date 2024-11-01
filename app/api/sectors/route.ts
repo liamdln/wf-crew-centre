@@ -126,7 +126,7 @@ export async function DELETE(request: NextRequest) {
         return Response.json(deletedSector)
     } catch (e) {
         console.error(e)
-        return Response.json({message: "A server error occurred while creating the sector."}, { status: 500 })
+        return Response.json({message: "A server error occurred while deleting the sector."}, { status: 500 })
     }
 
 

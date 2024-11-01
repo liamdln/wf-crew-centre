@@ -4,12 +4,11 @@ import {Card, CardDescription, CardHeader, CardTitle} from "@/components/ui/card
 import Image from "next/image";
 import {capitaliseFirstLetter, isAdmin} from "@/lib/utils";
 import {User} from "next-auth";
-import EditProfile from "@/components/edit-profile";
+import EditProfile from "@/components/dialog-forms/edit-profile/edit-profile";
 import {EditIcon} from "lucide-react";
-import {useState} from "react";
-import {Role} from "@prisma/client";
-import {patchUser} from "@/lib/api/users";
-import {toast} from "@/hooks/use-toast";
+import {useContext, useEffect, useState} from "react";
+import {UserContext} from "@/context/users";
+import LoadingSkeleton from "@/components/loading-skeleton";
 
 type Props = {
     initialUserData: User
@@ -18,34 +17,15 @@ type Props = {
 
 function ProfileSidebar({isCurrentUser, initialUserData}: Props) {
 
-    const [user, setUser] = useState<User>(initialUserData);
+    const { filterUsersById } = useContext(UserContext)
 
-    const updateUser = async (userId: string, name: string, bio: string, role: string) => {
-        const body = {
-            name,
-            role,
-            bio
-        }
+    const [user, setUser] = useState(initialUserData)
 
-        return patchUser(userId, body)
-            .then(() => {
-                setUser(old => {
-                    return {
-                        ...old,
-                        name,
-                        bio: bio === "" ? null : bio,
-                        role: role as Role,
-                    }
-                })
-            })
-            .catch(() => {
-                toast({
-                    title: "An Error Occurred",
-                    description: "Could not update the profile.",
-                    variant: "destructive"
-                })
-            })
-    }
+    useEffect(() => {
+        const user = filterUsersById(initialUserData.id ?? "0") ?? initialUserData
+        setUser(user)
+    }, [filterUsersById, initialUserData])
+
 
     return (
         <Card className={"w-1/5 h-full"}>
@@ -59,13 +39,11 @@ function ProfileSidebar({isCurrentUser, initialUserData}: Props) {
                     />
                     <CardTitle className={"overflow-x-scroll overflow-y-hidden py-1"}>{user.name}</CardTitle>
                     <CardDescription><em>{capitaliseFirstLetter(user.role)}</em></CardDescription>
-                    <p className={"text-muted-foreground mt-6"}>{user.bio ?? <em>No biography...</em>}</p>
+                    <p className={"text-muted-foreground mt-6"}>{user.bio === "" ? <em>No biography...</em> : user.bio}</p>
                 </div>
                 <EditProfile user={user}
                              hidden={isCurrentUser && !isAdmin(user)}
                              isCurrentUser={isCurrentUser}
-                             updateUser={updateUser}
-
                 >
                     <EditIcon className={"w-4 h-4 me-2"}/>
                     Edit Profile

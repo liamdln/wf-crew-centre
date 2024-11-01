@@ -1,14 +1,16 @@
-import UserTable from "@/components/user-table";
+import UserTable from "@/components/user-table/user-table";
 import {auth} from "@/auth";
-import {getAllRoleAssignments} from "@/lib/database/users";
+import {getAllUsers} from "@/lib/database/users";
 import {Separator} from "@/components/ui/separator";
+import {mapUserRoles} from "@/lib/utils";
 
 async function UserManagementPage() {
 
     const session = await auth()
     if (!session?.user) return null
 
-    const roleAssignments = await getAllRoleAssignments()
+    const users = await getAllUsers()
+    const userRoleMap = await mapUserRoles(users)
 
     return (
         <div>
@@ -16,7 +18,7 @@ async function UserManagementPage() {
                 <h1 className={"text-4xl font-bold mb-1"}>User Management</h1>
                 <Separator/>
             </div>
-            <UserTable currentUser={session?.user} roleAssignments={roleAssignments} />
+            <UserTable currentUser={session?.user} allUsers={users} userRoleMap={userRoleMap} />
         </div>
     )
 }

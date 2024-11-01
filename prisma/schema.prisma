@@ -17,8 +17,8 @@ model User {
     createdAt     DateTime   @default(now())
     updatedAt     DateTime   @updatedAt
     accounts      Account[]
-    FirstOfficer  Sector[]    @relation("Sector_FO")
-    PilotFlying   Sector[]    @relation("Sector_PIC")
+    FirstOfficer  Sector[]   @relation("Sector_FO")
+    PilotFlying   Sector[]   @relation("Sector_PIC")
     sessions      Session[]
     UserRoles     UserRoles?
 }
@@ -66,34 +66,33 @@ model UserRoles {
 }
 
 model Sector {
-    id            Int   @id
+    id            Int      @id
     fromIcao      String   @map("from_icao")
     fromName      String   @map("from_name")
     toIcao        String   @map("to_icao")
     toName        String   @map("to_name")
     route         String
-    picId         String   @map("pic_id")
-    foId          String   @map("fo_id")
+    picId         String?  @map("pic_id")
+    foId          String?  @map("fo_id")
     departureTime DateTime @map("departure_time")
     arrivalTime   DateTime @map("arrival_time")
     blockTime     String   @map("block_time")
-    FO            User     @relation("Sector_FO", fields: [foId], references: [id])
-    PIC           User     @relation("Sector_PIC", fields: [picId], references: [id])
+    FO            User?    @relation("Sector_FO", fields: [foId], references: [id], onDelete: SetNull)
+    PIC           User?    @relation("Sector_PIC", fields: [picId], references: [id], onDelete: SetNull)
 
     @@unique([fromIcao, toIcao], name: "tripId")
 }
 
-// data from https://www.partow.net/miscellaneous/airportdatabase/index.html#Downloads
 model Airport {
-    id        Int     @id @default(autoincrement())
-    icaoCode  String? @unique @map("icao_code") @db.Char(4)
-    iataCode  String? @unique @map("iata_code") @db.Char(3)
-    name      String? @db.VarChar(50)
-    city      String? @db.VarChar(50)
-    country   String? @db.VarChar(50)
-    altitude  Int?
-    latitude  Float?  @map("lat_deciman")
-    longitude Float?  @map("lon_decimal")
+    id        Int    @id @default(autoincrement())
+    icaoCode  String @unique @map("icao_code") @db.Char(4)
+    iataCode  String @unique @map("iata_code") @db.Char(3)
+    name      String
+    city      String
+    country   String
+    altitude  Float
+    latitude  Float  @map("lat_deciman")
+    longitude Float  @map("lon_decimal")
 }
 
 enum Role {

@@ -1,4 +1,5 @@
 import {auth} from "@/auth";
+import {Separator} from "@/components/ui/separator";
 
 async function Dashboard() {
 
@@ -6,8 +7,19 @@ async function Dashboard() {
 
     return (
         <div>
-            <h1 className={"text-4xl font-bold"}>Dashboard</h1>
-            <span>{ JSON.stringify(session) }</span>
+            <div className={"mb-3"}>
+                <h1 className={"text-4xl font-bold mb-1"}>Dashboard</h1>
+                <Separator/>
+            </div>
+            <div className={"space-y-6"}>
+                <div>
+                    <p className={"text-xl"}>Hello {session?.user.name} 👋</p>
+                </div>
+                <div>
+
+                </div>
+            </div>
+
         </div>
     )
 

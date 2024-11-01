@@ -1,91 +1,54 @@
-const readline = require("readline")
 const fs = require("fs")
 const {PrismaClient} = require("@prisma/client");
 
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
 
-function getFileFromFS(airportDataFile) {
-    if (!airportDataFile) throw new Error("No file location was entered.")
-
+async function run() {
     let airportData;
     try {
-        airportData = fs.readFileSync(airportDataFile, "utf8")
+        airportData = fs.readFileSync("./airports.json", "utf8")
     } catch (e) {
         console.error(e)
     }
 
-    const lines = airportData.split("\n")
-    const airports = []
+    airportData = JSON.parse(airportData)
 
+    console.log("Inserting airports...")
+
+    const data = []
     const knownIcaoCodes = []
     const knownIataCodes = []
 
-    for (const line of lines) {
-        const airportDetails = line.split(":")
+    for (const airport of airportData) {
 
-        if (!airportDetails[0] || !airportDetails[1]) continue;
-        if (knownIcaoCodes.includes(airportDetails[0]) || knownIataCodes.includes(airportDetails[1])) continue;
+        if (!airport.iata_code || !airport.ident) continue;
+        if (knownIataCodes.includes(airport.iata_code) || knownIcaoCodes.includes(airport.ident)) continue;
+        if (airport.ident.length !== 4 || airport.iata_code.length !== 3) continue;
 
-        airports.push({
-            icaoCode: airportDetails[0],
-            iataCode: airportDetails[1],
-            name: airportDetails[2],
-            city: airportDetails[3],
-            country: airportDetails[4],
-            altitude: +airportDetails[13],
-            longitude: +airportDetails[14],
-            latitude: +airportDetails[15],
+        data.push({
+            icaoCode: airport.ident,
+            iataCode: airport.iata_code,
+            name: airport.name,
+            city: airport.municipality,
+            country: airport.iso_country,
+            altitude: +airport.elevation_ft,
+            latitude: +airport.latitude_deg,
+            longitude: +airport.longitude_deg,
         })
-
-        knownIcaoCodes.push(airportDetails[0])
-        knownIataCodes.push(airportDetails[1])
-
+        knownIataCodes.push(airport.iata_code)
+        knownIcaoCodes.push(airport.ident)
     }
 
-    return airports
+    const prisma = new PrismaClient()
 
-}
-
-function readFile() {
-    rl.question("Enter airport data file location (absolute path): ", (answer) => {
-        const airports = getFileFromFS(answer)
-        insertIntoDb(airports)
-        rl.close()
+    await prisma.airport.deleteMany()
+    await prisma.airport.createMany({
+        data
     })
 
 }
 
-async function insertIntoDb(airports) {
+run()
+    .then(() => console.log("Done"))
+    .catch(err => console.log(err))
 
-    // const icaoCode = airports[0]
-    // const iataCode = airports[1]
-    // const name = airports[2]
-    // const city = airports[3]
-    // const country = airports[4]
-    // const altitude = +airports[13]
-    // const longitude = +airports[14]
-    // const latitude = +airports[15]
-
-    console.log(airports)
-
-    console.log("Inserting airports...")
-
-    const prisma = new PrismaClient()
-
-    try {
-        await prisma.airport.createMany({
-            data: airports
-        })
-        console.log("Insert complete!")
-    } catch (e) {
-        console.error(e)
-        console.log("Insert failed!")
-    }
-
-
-}
-
-readFile()
+// data from https://ourairports.com/data/

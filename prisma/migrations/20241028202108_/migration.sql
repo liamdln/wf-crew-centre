@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Airport" ALTER COLUMN "altitude" SET DATA TYPE DOUBLE PRECISION;

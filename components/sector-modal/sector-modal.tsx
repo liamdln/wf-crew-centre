@@ -8,7 +8,6 @@ import {
     DialogTitle,
     DialogTrigger
 } from "@/components/ui/dialog";
-import {Button} from "@/components/ui/button";
 import NewSectorForm from "@/components/sector-modal/form";
 import React, {useEffect, useState} from "react";
 import {User} from "next-auth";
