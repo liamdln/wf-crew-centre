@@ -27,9 +27,23 @@ export async function mapUserRoles (users?: User[]) {
         users = await getAllUsers()
     }
 
-    const mappedUsers: Record<string, string> = {}
+    const map: Record<string, string> = {}
     users.forEach((user: User) => {
-        if (user.id) mappedUsers[user.id] = user?.role ?? "member"
+        if (user.id) map[user.id] = user?.role ?? "member"
     })
-    return mappedUsers
+    return map
+}
+
+export async function mapIdsToNames(users?: User[]) {
+
+    if (!users) {
+        users = await getAllUsers()
+    }
+
+    const map: Record<string, string> = {}
+    users.forEach((user: User) => {
+        if (user.id) map[user.id] = user?.name ?? "Unknown"
+    })
+    return map
+
 }

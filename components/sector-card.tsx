@@ -4,7 +4,7 @@ import Link from "next/link";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
 import {Sector} from "@prisma/client";
 import moment from 'moment/min/moment-with-locales';
-import {cn, mapUserRoles} from "@/lib/utils";
+import {cn, mapIdsToNames, mapUserRoles} from "@/lib/utils";
 
 type Props = {
     sector: Sector;
@@ -13,7 +13,7 @@ type Props = {
 
 async function SectorCard({ sector, className }: Props) {
 
-    const userRoleMap = await mapUserRoles()
+    const userNameMap = await mapIdsToNames()
 
     return (
         <Card className={cn(className)} key={sector.id}>
@@ -54,18 +54,18 @@ async function SectorCard({ sector, className }: Props) {
             <CardContent className={"space-y-6 text-sm"}>
                 <div>
                     <h1 className={"text-xl font-bold"}>Crew</h1>
-                    <p>Crewed By{" "}
+                    <p>Crewed by{" "}
                         {
                             sector.picId
                                 ? <Link href={`/dashboard/profile?id=${sector.picId}`}
-                                        className={"underline"}>{userRoleMap[sector.picId]}</Link>
+                                        className={"underline"}>{userNameMap[sector.picId]}</Link>
                                 : <span>Unknown</span>
                         }{" "}
                         <span className={"text-muted-foreground italic text-xs"}>(PIC)</span> and{" "}
                         {
                             sector.foId
                                 ? <Link href={`/dashboard/profile?id=${sector.foId}`}
-                                        className={"underline"}>{userRoleMap[sector.foId]}</Link>
+                                        className={"underline"}>{userNameMap[sector.foId]}</Link>
                                 : <span>Unknown</span>
                         }{" "}
                         <span className={"text-muted-foreground italic text-xs"}>(FO)</span>.

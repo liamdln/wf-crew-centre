@@ -12,6 +12,7 @@ export async function handleDeleteUser(user: User) {
     if (!isAdmin(session?.user)) throw new Error("Unauthorised");
 
     if (!user.id) throw new Error("Invalid user structure.")
+    if (user.id === session?.user.id) throw new Error("Cannot delete self.")
 
     await deleteUser(user.id)
     revalidatePath("/dashboard/admin/user-management")

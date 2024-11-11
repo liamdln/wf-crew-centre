@@ -4,7 +4,7 @@ import {Sector} from "@prisma/client";
 async function getSectors(): Promise<Sector[]> {
 
     return prisma.sector.findMany({
-        orderBy: [{ id: "asc" }]
+        orderBy: [{id: "asc"}]
     });
 
 }
@@ -35,10 +35,10 @@ async function getSectorsByUser(userId: string): Promise<Sector[]> {
         where: {
             OR: [
                 {
-                    picId: { equals: userId }
+                    picId: {equals: userId}
                 },
                 {
-                    foId: { equals: userId }
+                    foId: {equals: userId}
                 }
             ]
         }
@@ -62,8 +62,20 @@ async function updateSector(sectorId: number, sector: Sector): Promise<Sector> {
     if (!validateSectorData(sector)) throw new Error("Invalid sector data was sent.")
 
     return prisma.sector.update({
-        where: { id: sectorId },
+        where: {id: sectorId},
         data: sector
+    })
+
+}
+
+async function upsertSector(sector: Sector): Promise<Sector> {
+
+    if (!validateSectorData(sector)) throw new Error("Invalid sector data was sent.")
+
+    return prisma.sector.upsert({
+        where: {id: sector.id},
+        update: sector,
+        create: sector
     })
 
 }
@@ -92,4 +104,14 @@ function validateSectorData(sector: Sector): boolean {
 
 }
 
-export { getSectors, getSectorByTrip, getSector, createSector, updateSector, validateSectorData, deleteSector, getSectorsByUser }
+export {
+    getSectors,
+    getSectorByTrip,
+    getSector,
+    createSector,
+    updateSector,
+    validateSectorData,
+    deleteSector,
+    getSectorsByUser,
+    upsertSector
+}

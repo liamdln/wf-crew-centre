@@ -2,13 +2,13 @@
 
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import moment from 'moment/min/moment-with-locales';
-import SectorModal from "@/components/sector-modal/sector-modal";
 import {useState} from "react";
 import {Button} from "@/components/ui/button";
 import {EditIcon, TrashIcon} from "lucide-react";
 import {Input} from "@/components/ui/input";
 import {Sector} from "@prisma/client";
 import {DeleteSector} from "@/components/dialog-forms/delete-sector";
+import {SectorForm} from "@/components/dialog-forms/sector/index";
 
 type Props = {
     userIdNameMap: Record<string, string>;
@@ -29,11 +29,8 @@ function SectorTable({userIdNameMap, sectors}: Props) {
 
     return (
         <>
-            <div className={"mb-6 flex justify-between"}>
-                <SectorModal>
-                    <Button>New Sector</Button>
-                </SectorModal>
-                <Input className={"w-1/8 float-right mb-2"}
+            <div className={"mb-6 float-right"}>
+                <Input className={"w-1/8"}
                        placeholder={"Search..."}
                        value={searchTerm}
                        onChange={(e) => setSearchTerm(e.target.value)}
@@ -76,11 +73,11 @@ function SectorTable({userIdNameMap, sectors}: Props) {
                                             <TableCell>{moment(sector.departureTime).locale("en-gb").format("LT")}</TableCell>
                                             <TableCell>{moment(sector.arrivalTime).locale("en-gb").format("LT")}</TableCell>
                                             <TableCell className={"flex gap-3 justify-end"}>
-                                                <SectorModal sector={sector}>
+                                                <SectorForm sector={sector} airports={[]} users={[]}>
                                                     <Button size={"icon"}>
                                                         <EditIcon className={"w-4 h-4"}/>
                                                     </Button>
-                                                </SectorModal>
+                                                </SectorForm>
                                                 <DeleteSector sector={sector}>
                                                     <Button size={"icon"} variant={"destructive"}>
                                                         <TrashIcon className={"w-4 h-4"}/>

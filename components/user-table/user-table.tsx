@@ -81,6 +81,7 @@ function UserTable({currentUser, allUsers, userRoleMap}: Props) {
                                                 <Button
                                                     size={"icon"}
                                                     variant={"destructive"}
+                                                    disabled={currentUser.id === user.id}
                                                 >
                                                     <TrashIcon className={"w-4 h-4"}/>
                                                 </Button>
